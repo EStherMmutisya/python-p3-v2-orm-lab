@@ -1,6 +1,7 @@
 # lib/employee.py
 from __init__ import CURSOR, CONN
 from department import Department
+# from review import Review
 
 class Employee:
 
@@ -185,6 +186,20 @@ class Employee:
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
 
+ 
     def reviews(self):
-        """Return list of reviews associated with current employee"""
-        pass
+        """Return list of reviews associated with the current employee"""
+        from review import Review  # Import Review class locally to avoid circular import
+        sql = """
+            SELECT * FROM reviews WHERE employee_id = ?
+        """
+        CURSOR.execute(sql, (self.id,))
+        rows = CURSOR.fetchall()
+
+        # Create Review instances from the retrieved rows
+        reviews = []
+        for row in rows:
+            review = Review.instance_from_db(row)
+            reviews.append(review)
+
+        return reviews
